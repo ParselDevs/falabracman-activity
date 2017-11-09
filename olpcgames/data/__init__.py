@@ -14,7 +14,7 @@ else:
 		try:
 			from resourcepackage import package, defaultgenerators
 			generators = defaultgenerators.generators.copy()
-			
+
 			### CUSTOMISATION POINT
 			## import specialised generators here, such as for wxPython
 			#from resourcepackage import wxgenerators
@@ -31,6 +31,6 @@ else:
 				### CUSTOMISATION POINT
 				## force true -> always re-loads from external files, otherwise
 				## only reloads if the file is newer than the generated .py file.
-				# force = 1, 
+				# force = 1,
 			)
-		
+

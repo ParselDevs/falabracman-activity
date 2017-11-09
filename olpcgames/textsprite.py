@@ -1,5 +1,5 @@
 """Simple Sprite sub-class that renders via a PangoFont"""
-from pygame import sprite 
+from pygame import sprite
 from olpcgames import pangofont
 
 class TextSprite( sprite.Sprite ):
@@ -13,7 +13,7 @@ class TextSprite( sprite.Sprite ):
         self.set_text( text )
     def set_text( self, text ):
         """Set our text string and render to a graphic"""
-        self.text = text 
+        self.text = text
         self.render( )
     def set_color( self, color =None):
         """Set our rendering colour (default white)"""
@@ -21,12 +21,12 @@ class TextSprite( sprite.Sprite ):
         self.render()
     def set_background( self, color=None ):
         """Set our background color, default transparent"""
-        self.background = color 
+        self.background = color
         self.render()
     def render( self ):
         """Render our image and rect (or None,None)
-        
-        After a render you will need to move the rect member to the 
+
+        After a render you will need to move the rect member to the
         correct location on the screen.
         """
         if self.text:
@@ -34,7 +34,7 @@ class TextSprite( sprite.Sprite ):
             currentRect = self.rect
             self.rect = self.image.get_rect()
             if currentRect:
-                self.rect.center = currentRect.center 
+                self.rect.center = currentRect.center
         else:
-            self.rect = None 
+            self.rect = None
             self.image = None

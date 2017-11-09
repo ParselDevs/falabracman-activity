@@ -19,62 +19,62 @@ __all__ = ['PygameCanvas']
 
 class PygameCanvas(gtk.Layout):
     """Canvas providing bridge methods to run Pygame in GTK
-    
-    The PygameCanvas creates a secondary thread in which the Pygame instance will 
-    live, providing synthetic Pygame events to that thread via a Queue.  The GUI 
-    connection is  done by having the Pygame canvas use a GTK Port object as it's 
+
+    The PygameCanvas creates a secondary thread in which the Pygame instance will
+    live, providing synthetic Pygame events to that thread via a Queue.  The GUI
+    connection is  done by having the Pygame canvas use a GTK Port object as it's
     window pointer, it draws to that X-level window in order to produce output.
     """
     mod_name = None
     def __init__(self, width, height):
         """Initializes the Canvas Object
-        
+
         width,height -- passed to the inner EventBox in order to request a given size,
             the Socket is the only child of this EventBox, and the Pygame commands
-            will be writing to the Window ID of the socket.  The internal EventBox is 
+            will be writing to the Window ID of the socket.  The internal EventBox is
             centered via an Alignment instance within the PygameCanvas instance.
-            
-        XXX Should refactor so that the internal setup can be controlled by the 
+
+        XXX Should refactor so that the internal setup can be controlled by the
         sub-class, e.g. to get size from the host window, or something similar.
         """
         # Build the main widget
         log.info( 'Creating the pygame canvas' )
         super(PygameCanvas,self).__init__()
         self.set_flags(gtk.CAN_FOCUS)
-        
+
         # Build the sub-widgets
         self._align = gtk.Alignment(0.5, 0.5)
         self._inner_evb = gtk.EventBox()
         self._socket = gtk.Socket()
 
-        
+
         # Add internal widgets
         self._inner_evb.set_size_request(width, height)
         self._inner_evb.add(self._socket)
-        
+
         self._socket.show()
-        
+
         self._align.add(self._inner_evb)
         self._inner_evb.show()
-        
+
         self._align.show()
-        
+
         self.put(self._align, 0,0)
-        
+
         # Construct a gtkEvent.Translator
         self._translator = gtkEvent.Translator(self, self._inner_evb)
         # <Cue Thus Spract Zarathustra>
         self.show()
     def connect_game(self, app):
-        """Imports the given main-loop and starts processing in secondary thread 
-        
-        app -- fully-qualified Python path-name for the game's main-loop, with 
-            name within module as :functionname, if no : character is present then 
+        """Imports the given main-loop and starts processing in secondary thread
+
+        app -- fully-qualified Python path-name for the game's main-loop, with
+            name within module as :functionname, if no : character is present then
             :main will be assumed.
-        
+
         Side effects:
-        
-            Sets the SDL_WINDOWID variable to our socket's window ID 
+
+            Sets the SDL_WINDOWID variable to our socket's window ID
             Calls Pygame init
             Causes the gtkEvent.Translator to "hook" Pygame
             Creates and starts secondary thread for Game/Pygame event processing.
@@ -86,7 +86,7 @@ class PygameCanvas(gtk.Layout):
         pygame.init()
 
         self._translator.hook_pygame()
-        
+
         # Load the modules
         # NOTE: This is delayed because pygame.init() must come after the embedding is up
         if ':' not in app:
@@ -95,7 +95,7 @@ class PygameCanvas(gtk.Layout):
         self.mod_name = mod_name
         mod = __import__(mod_name, globals(), locals(), [])
         fn = getattr(mod, fn_name)
-        
+
         # Start Pygame
         self.__thread = threading.Thread(target=self._start, args=[fn])
         self.__thread.start()
@@ -114,7 +114,7 @@ class PygameCanvas(gtk.Layout):
                 os.chdir(sugar.activity.activity.get_bundle_path())
             except KeyError, err:
                 pass
-        
+
         try:
             try:
                 try:
@@ -138,7 +138,7 @@ class PygameCanvas(gtk.Layout):
 
     source_object_id = None
     def view_source(self):
-        """Implement the 'view source' key by saving 
+        """Implement the 'view source' key by saving
         datastore, and then telling the Journal to view it."""
         if self.source_object_id is None:
             from sugar import profile

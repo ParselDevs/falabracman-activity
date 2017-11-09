@@ -21,8 +21,8 @@ import pygame
 from pygame.locals import *
 from olpcgames import pausescreen
 from init import screen
-import gettext 
-import locale 
+import gettext
+import locale
 import os
 import config
 
@@ -73,7 +73,7 @@ class Menu:
         altura_de_opcion = 60
         x = 405
         y = 405
-        
+
         for indice, imagenes in enumerate(self.imagenes):
             posicion = (x, y + altura_de_opcion * indice)
             area = imagenes[0].get_rect(topleft=posicion)
@@ -95,7 +95,7 @@ class Menu:
             self.seleccionado = 0
         elif self.seleccionado > len(self.opciones) - 1:
             self.seleccionado = len(self.opciones) - 1
-        sonido_menu.play() 
+        sonido_menu.play()
         self.dibujarOpciones()
 
     def dibujarFondo(self):
@@ -116,7 +116,7 @@ class Menu:
                     elif e.key in [K_DOWN, K_KP2]:
                         self.moverSeleccion(1)
                     elif e.key in [K_RETURN, K_KP7, K_KP1, K_KP3, K_KP9]:
-                        sonido_menu.play() 
+                        sonido_menu.play()
                         titulo, funcion = self.opciones[self.seleccionado]
                         funcion()
                         self.actualizar()
@@ -165,7 +165,7 @@ class MenuPrincipal(Menu):
 
         import game
         game.main(lang)
- 
+
     def mostrar_opciones(self):
         MenuIdiomas().run()
 
@@ -178,7 +178,7 @@ class MenuPrincipal(Menu):
         print "Gracias por utilizar este programa."
         sys.exit(0)
 
-def main():    
+def main():
     pygame.mouse.set_visible(False)
     sonido_menu.play()
     mostrarImagen(imagen_presentacion, 3)

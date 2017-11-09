@@ -33,7 +33,7 @@
  Llegada
  Dinero
  Monedas
- Tarjeta 
+ Tarjeta
  Factura
  Recibo
  Caro

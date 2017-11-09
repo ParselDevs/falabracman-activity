@@ -9,38 +9,38 @@ Depends on:
     (pygame)
 
 As soon as you import this module you have loaded *all* of the above.
-You can still use pygame.font until you decide to call install(), which 
+You can still use pygame.font until you decide to call install(), which
 will replace pygame.font with this module.
 
 Notes:
 
-    * no ability to load TTF files, PangoFont uses the font files registered 
-        with GTK/X to render graphics, it cannot load an arbitrary TTF file.  
-        Most non-Sugar Pygame games use bundled TTF files, which means 
+    * no ability to load TTF files, PangoFont uses the font files registered
+        with GTK/X to render graphics, it cannot load an arbitrary TTF file.
+        Most non-Sugar Pygame games use bundled TTF files, which means
         that you will likely need at least some changes to your font handling.
-        
-        Note, however, that the Pygame Font class is available to load the TTF 
-        files, so if you don't want to take advantage of PangoFont for already 
-        written code, but want to use it for "system font" operations, you can 
+
+        Note, however, that the Pygame Font class is available to load the TTF
+        files, so if you don't want to take advantage of PangoFont for already
+        written code, but want to use it for "system font" operations, you can
         mix the two.
-        
-    * metrics are missing, Pango can provide the information, but the more 
-        involved metrics system means that translating to the simplified model 
+
+    * metrics are missing, Pango can provide the information, but the more
+        involved metrics system means that translating to the simplified model
         in Pygame has as of yet not been accomplished.
-        
+
     * better support for "exotic" languages and scripts (which is why we use it)
 
-The main problem with SDL_ttf is that it doesn't handle internationalization 
-nearly as well as Pango (in fact, pretty much nothing does). However, it is 
-fairly fast and it has a rich interface. You should avoid fonts where possible, 
-prerender using Pango for internationalizable text, and use Pango or SDL_ttf 
-for text that really needs to be rerendered each frame. (Use SDL_ttf if profiling 
+The main problem with SDL_ttf is that it doesn't handle internationalization
+nearly as well as Pango (in fact, pretty much nothing does). However, it is
+fairly fast and it has a rich interface. You should avoid fonts where possible,
+prerender using Pango for internationalizable text, and use Pango or SDL_ttf
+for text that really needs to be rerendered each frame. (Use SDL_ttf if profiling
 demonstrates that performance is poor with Pango.)
 
 Note:
-    Font -- is the original Pygame Font class, which allows you to load 
+    Font -- is the original Pygame Font class, which allows you to load
         fonts from TTF files/filenames
-    PangoFont -- is the Pango-specific rendering engine which allows 
+    PangoFont -- is the Pango-specific rendering engine which allows
         for the more involved cross-lingual rendering operations.
 """
 import pango
@@ -68,13 +68,13 @@ def install():
 
 class PangoFont(object):
     """Base class for a pygame.font.Font-like object drawn by Pango
-    
+
     Attributes of note:
-    
-        fd -- instances Pango FontDescription object 
+
+        fd -- instances Pango FontDescription object
         WEIGHT_* -- parameters for use with set_weight
         STYLE_* -- parameters for use with set_style
-        
+
     """
     WEIGHT_BOLD = pango.WEIGHT_BOLD
     WEIGHT_HEAVY = pango.WEIGHT_HEAVY
@@ -110,14 +110,14 @@ class PangoFont(object):
     def render(self, text, antialias=True, color=(255,255,255), background=None ):
         """Render the font onto a new Surface and return it.
         We ignore 'antialias' and use system settings.
-        
+
         text -- (unicode) string with the text to render
         antialias -- attempt to antialias the text or not
-        color -- three or four-tuple of 0-255 values specifying rendering 
-            colour for the text 
-        background -- three or four-tuple of 0-255 values specifying rendering 
+        color -- three or four-tuple of 0-255 values specifying rendering
+            colour for the text
+        background -- three or four-tuple of 0-255 values specifying rendering
             colour for the background, or None for trasparent background
-        
+
         returns a pygame image instance
         """
         log.info( 'render: %r, antialias = %s, color=%s, background=%s', text, antialias, color, background )
@@ -131,7 +131,7 @@ class PangoFont(object):
         csrf,cctx = _cairoimage.newContext( ink.w, ink.h )
         cctx = pangocairo.CairoContext(cctx)
 
-        # Mangle the colors on little-endian machines. The reason for this 
+        # Mangle the colors on little-endian machines. The reason for this
         # is that Cairo writes native-endian 32-bit ARGB values whereas
         # Pygame expects endian-independent values in whatever format. So we
         # tell our users not to expect transparency here (avoiding the A issue)
@@ -142,7 +142,7 @@ class PangoFont(object):
             background = _cairoimage.mangle_color( background )
             cctx.set_source_rgba(*background)
             cctx.paint()
-        
+
         log.debug( 'incoming color: %s', color )
         color = _cairoimage.mangle_color( color )
         log.debug( '  translated color: %s', color )
@@ -154,11 +154,11 @@ class PangoFont(object):
 
         # Create and return a new Pygame Image derived from the Cairo Surface
         return _cairoimage.asImage( csrf )
-    
+
     def set_bold( self, bold=True):
         """Set our font description's weight to "bold" or "normal"
-        
-        bold -- boolean, whether to set the value to "bold" weight or not 
+
+        bold -- boolean, whether to set the value to "bold" weight or not
         """
         if bold:
             self.set_weight(  self.WEIGHT_BOLD )
@@ -174,7 +174,7 @@ class PangoFont(object):
     def get_bold( self ):
         """Return whether our font's weight is bold (or above)"""
         return self.fd.get_weight() >= pango.WEIGHT_BOLD
-    
+
     def set_italic( self, italic=True ):
         """Set our "italic" value (style)"""
         if italic:
@@ -191,7 +191,7 @@ class PangoFont(object):
     def get_italic( self ):
         """Return whether we are currently italicised"""
         return self.fd.get_style() == self.STYLE_ITALIC # what about oblique?
-    
+
     def set_underline( self, underline=True ):
         """Set our current underlining properly"""
         self.underline = underline
@@ -215,14 +215,14 @@ class PangoFont(object):
 
     def size( self, text ):
         """Determine space required to render given text
-        
+
         returns tuple of (width,height)
         """
         layout = self._createLayout( text )
         (logical, ink) = layout.get_pixel_extents()
         ink = pygame.rect.Rect(ink)
         return (ink.width,ink.height)
-    
+
 ##    def get_linesize( self ):
 ##        """Determine inter-line spacing for the font"""
 ##        font = self.get_context().load_font( self.fd )
@@ -231,7 +231,7 @@ class PangoFont(object):
 ##        def get_height( self ):
 ##        def get_ascent( self ):
 ##        def get_descent( self ):
-        
+
 
 class SysFont(PangoFont):
     """Construct a PangoFont from a font description (name), size in pixels,
@@ -254,8 +254,8 @@ def match_font(name,bold=False,italic=False):
 
 def fontByDesc(desc="",bold=False,italic=False):
     """Constructs a FontDescription from the given string representation.
-    
-The format of the fontByDesc string representation is passed directly 
+
+The format of the fontByDesc string representation is passed directly
 to the pango.FontDescription constructor and documented at:
 
     http://www.pygtk.org/docs/pygtk/class-pangofontdescription.html#constructor-pangofontdescription
@@ -286,18 +286,18 @@ Ultra-Bold	the ultra-bold weight (= 800)
 Heavy	the heavy weight (= 900)
 
 The available variants are:
-Normal	
-Small-Caps	
+Normal
+Small-Caps
 
 The available stretch styles are:
 Ultra-Condensed	the smallest width
-Extra-Condensed	
-Condensed	
-Semi-Condensed	
+Extra-Condensed
+Condensed
+Semi-Condensed
 Normal	the normal width
-Semi-Expanded	
-Expanded	
-Extra-Expanded	
+Semi-Expanded
+Expanded
+Extra-Expanded
 Ultra-Expanded	the widest width
     """
     fd = pango.FontDescription(name)
@@ -309,8 +309,8 @@ Ultra-Expanded	the widest width
 
 def get_init():
     """Return boolean indicating whether we are initialised
-    
-    Always returns True 
+
+    Always returns True
     """
     return True
 

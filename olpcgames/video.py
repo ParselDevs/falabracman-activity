@@ -1,7 +1,7 @@
 """Video widget for displaying a gstreamer pipe
 
 Note: currently this module is not all that elegant or useful,
-we need a better recipe for using and working with Video 
+we need a better recipe for using and working with Video
 under OLPCGames.
 """
 import logging
@@ -21,21 +21,21 @@ import gst
 
 class VideoWidget(gtk.DrawingArea):
     """Widget to render GStreamer video over our Pygame Canvas
-    
-    The VideoWidget is a simple GTK window which is 
-    held by the PygameCanvas, just as is the Pygame 
-    window we normally use.  As such this approach 
+
+    The VideoWidget is a simple GTK window which is
+    held by the PygameCanvas, just as is the Pygame
+    window we normally use.  As such this approach
     *cannot* work without the GTK wrapper.
-    
-    It *should* be possible to use raw X11 operations 
-    to create a child window of the Pygame/SDL window 
-    and use that for the same purpose, but that would 
+
+    It *should* be possible to use raw X11 operations
+    to create a child window of the Pygame/SDL window
+    and use that for the same purpose, but that would
     require some pretty low-level ctypes hacking.
-    
+
     Attributes of Note:
-    
-        rect -- Pygame rectangle which tells us where to 
-            display ourselves, setting the rect changes the 
+
+        rect -- Pygame rectangle which tells us where to
+            display ourselves, setting the rect changes the
             position and size of the window.
     """
     _imagesink = None
@@ -51,7 +51,7 @@ class VideoWidget(gtk.DrawingArea):
         olpcgames.WIDGET.put( self, rect.left,rect.top)
         self._renderedRect = rect
         self.show()
-    
+
     def set_rect( self, rect ):
         """Set our rectangle (area of the screen)"""
         log.debug( 'Set rectangle: %s', rect )
@@ -75,8 +75,8 @@ class VideoWidget(gtk.DrawingArea):
         self._imagesink.set_property('force-aspect-ratio', self.force_aspect_ratio)
 
 class PygameWidget( object ):
-    """Render "full-screen" video to the entire Pygame screen 
-    
+    """Render "full-screen" video to the entire Pygame screen
+
     Not particularly useful unless this happens to be exactly what you need.
     """
     def __init__( self ):
@@ -85,14 +85,14 @@ class PygameWidget( object ):
         except KeyError, err: # pygame-ctypes...
             window_id = int(os.environ['SDL_WINDOWID'])
         self.window_id = window_id
-        self._imagesink = None 
+        self._imagesink = None
         #self._holder = _gtkmain.Holder()
     def set_sink( self, sink ):
         """Set up our gst sink"""
         log.info( 'Setting sink: %s', sink )
-        self._imagesink = sink 
+        self._imagesink = sink
         sink.set_xwindow_id( self.window_id )
-        
+
 #pipe_desc = 'v4l2src ! video/x-raw-yuv,width=160,height=120 ! ffmpegcolorspace ! xvimagesink'
 class Player(object):
     pipe_desc = 'v4l2src ! ffmpegcolorspace ! video/x-raw-yuv ! xvimagesink'
@@ -142,7 +142,7 @@ class Player(object):
             err, debug = message.parse_error()
             log.warn("Video error: (%s) %s" ,err, debug)
             self._playing = False
-    
+
 if __name__ == "__main__":
     # Simple testing code...
     logging.basicConfig()
@@ -151,17 +151,17 @@ if __name__ == "__main__":
     import pygame
     def main():
         display.init()
-        maxX,maxY = display.list_modes()[0] 
+        maxX,maxY = display.list_modes()[0]
         screen = display.set_mode( (maxX/3, maxY/3 ) )
-        
+
         display.flip()
-        
+
         pgw = PygameWidget( )
         p = Player( pgw, pipe_desc=Player.test_pipe_desc )
         p.play()
-        
+
         clock = pygame.time.Clock()
-        
+
         running = True
         while running:
             clock.tick( 60 )

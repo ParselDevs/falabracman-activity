@@ -1,14 +1,14 @@
 """Embeds the Canvas widget into a Sugar-specific Activity environment
 
 The olpcgames.activity module encapsulates creation of a Pygame activity.
-Your Activity should inherit from this class. Simply setting some class 
-attributes is all you need to do in a class inheriting from 
-olpcgames.activity.PygameActivity in order to get Pygame to work.  
+Your Activity should inherit from this class. Simply setting some class
+attributes is all you need to do in a class inheriting from
+olpcgames.activity.PygameActivity in order to get Pygame to work.
 
 (The skeleton builder script creates this file automatically for you).
 
-Note: 
-    You should not import pygame into your activity file, as the olpcgames 
+Note:
+    You should not import pygame into your activity file, as the olpcgames
     wrapper needs to be initialized before pygame is imported the first time.
 
 Example usage:
@@ -47,9 +47,9 @@ class PygameActivity(activity.Activity):
             format like so:
                 'package.module:main'
             if no function name is provided, "main" is assumed.
-            
-        game_handler -- DEPRECATED. alternate specification via direct 
-            reference to a main-loop function. 
+
+        game_handler -- DEPRECATED. alternate specification via direct
+            reference to a main-loop function.
 
         game_size -- two-value tuple specifying the size of the display in pixels,
             this is currently static, so once the window is created it cannot be
@@ -64,7 +64,7 @@ class PygameActivity(activity.Activity):
         pygame_mode -- chooses the rendering engine used for handling the
             Pygame drawing mode, 'SDL' chooses the standard Pygame renderer,
             'Cairo' chooses the experimental pygamecairo renderer.
-            
+
             Note: You likely do *not* want to use Cairo, it is no longer maintained.
 
         PYGAME_CANVAS_CLASS -- normally PygameCanvas, but can be overridden
@@ -79,9 +79,9 @@ class PygameActivity(activity.Activity):
     this super-class, with no easy way of overriding without completely rewriting
     the __init__ method.  We should allow for customising both the UI layout and
     the toolbar contents/layout/connection.
-    
-    XXX Note that if you change the title of your activity in the toolbar you may 
-    see the same focus issues as we have patched around in the build_toolbar 
+
+    XXX Note that if you change the title of your activity in the toolbar you may
+    see the same focus issues as we have patched around in the build_toolbar
     method.  If so, please report them to Mike Fletcher.
     """
     game_name = None
@@ -138,7 +138,7 @@ class PygameActivity(activity.Activity):
                 log.info( 'asserting focus' )
                 assert self._pgc.is_focus(), """Did not successfully set pygame canvas focus"""
             log.info( 'callback finished' )
-            
+
         def joined_cb(*args, **kwargs):
             log.info( 'joined: %s, %s', args, kwargs )
             mesh.activity_joined(self)
@@ -190,11 +190,11 @@ class PygameActivity(activity.Activity):
             fn()
     def read_file(self, file_path):
         """Handle request to read the given file on the Pygame side
-        
+
         This is complicated rather noticeably by the silly semantics of the Journal
-        where it unlinks the file as soon as this method returns.  We either have to 
-        handle the file-opening in PyGTK (not acceptable), block this thread until 
-        the Pygame thread handles the event (which it may never do) or we have 
+        where it unlinks the file as soon as this method returns.  We either have to
+        handle the file-opening in PyGTK (not acceptable), block this thread until
+        the Pygame thread handles the event (which it may never do) or we have
         to make the silly thing use a non-standard file-opening interface.
         """
         log.info( 'read_file: %s %s', file_path, self.metadata )
@@ -209,11 +209,11 @@ class PygameActivity(activity.Activity):
         eventwrap.post( event )
         event.block()
     def write_file( self, file_path ):
-        """Handle request to write to the given file on the Pygame side 
-        
-        This is rather complicated by the need to have the file complete by the 
-        time the function returns.  Very poor API, after all, if I have to write a 
-        multi-hundred-megabyte file it might take many minutes to complete 
+        """Handle request to write to the given file on the Pygame side
+
+        This is rather complicated by the need to have the file complete by the
+        time the function returns.  Very poor API, after all, if I have to write a
+        multi-hundred-megabyte file it might take many minutes to complete
         writing.
         """
         log.info( 'write_file: %s %s', file_path, self.metadata )
@@ -234,7 +234,7 @@ class PygameActivity(activity.Activity):
             raise NotImplementedError( """Pygame Activity code did not produce a file for %s"""%( file_path, ))
         else:
             log.info( '''Stored file in %r''', file_path )
-        
+
 
 import olpcgames
 olpcgames.PyGameActivity = PygameActivity

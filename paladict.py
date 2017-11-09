@@ -33,14 +33,14 @@ class PalaDict:
                 current_category = line[1:]
                 palabracman_dict[current_category] = list()
             else:
-                palabracman_dict[current_category].append(line[1:])     
-        
+                palabracman_dict[current_category].append(line[1:])
+
         self.palabracman_dict=palabracman_dict
         infile.close()
 
     def getDictionary(self):
         return self.palabracman_dict
-    
+
     def getRandomWordByCategory(self):
         dictionaryCategory = self.palabracman_dict["Palabras\n"]
         randomWordIndex = random.randint(0, (dictionaryCategory.__len__()-1) )

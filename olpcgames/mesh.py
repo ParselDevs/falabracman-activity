@@ -1,118 +1,118 @@
 '''Utilities for wrapping the telepathy network for Pygame
 
-The 'mesh' module allows your Pygame game to be Shared 
+The 'mesh' module allows your Pygame game to be Shared
 across the OLPC networking infrastructure (D-bus and Tubes).
 It offers a simplified view of the Telepathy system.
 
-All Sugar activities have a 'Share' menu (toolbar) which is 
-intended to allow other people to join the activity instance 
-and collaborate with you. When you select Share, the activity's 
+All Sugar activities have a 'Share' menu (toolbar) which is
+intended to allow other people to join the activity instance
+and collaborate with you. When you select Share, the activity's
 icon appears on the Neighborhood view of other laptops.
 
-If you do nothing else with networking, this is all that will 
-happen: if anyone selects your shared activity icon, they will 
-just spawn a new instance of the activity, and they will get to 
+If you do nothing else with networking, this is all that will
+happen: if anyone selects your shared activity icon, they will
+just spawn a new instance of the activity, and they will get to
 play your game alone.
 
-The mesh module automatically sets up a connection from each 
+The mesh module automatically sets up a connection from each
 participant to every other participant.  It provides (string based)
-communications channels that let you either broadcast messages 
+communications channels that let you either broadcast messages
 to other users or communicate point-to-point to one other user.
 
-You can use the "handles" which uniquely idenify users to send 
-messages to an individual user (send_to( handle, message )) or 
+You can use the "handles" which uniquely idenify users to send
+messages to an individual user (send_to( handle, message )) or
 broadcast( message ) to send a message to all participants.
 
-More advanced (structured) networking can be handled by using 
-the get_object( handle, path ) function, which looks up an object 
-(by DBUS path) shared by the user "handle" and returns a 
-DBUS/Telepathy proxy for that object.  The object you get back is 
-actually an olpcgames.dbusproxy.DBUSProxy instance, which 
-enforces asynchronous operations and runs your 
+More advanced (structured) networking can be handled by using
+the get_object( handle, path ) function, which looks up an object
+(by DBUS path) shared by the user "handle" and returns a
+DBUS/Telepathy proxy for that object.  The object you get back is
+actually an olpcgames.dbusproxy.DBUSProxy instance, which
+enforces asynchronous operations and runs your
 reply_handler/error_handler in the Pygame event loop.
 
 NOTE:
-    You *cannot* make synchronous calls on these objects!  
+    You *cannot* make synchronous calls on these objects!
     You must use the named arguments:
 
         reply_handler, error_handler
 
-    for every call which you perform on a shared object (normally 
+    for every call which you perform on a shared object (normally
     these are ExportedGObject instances).
 
-If you want to run your callbacks in the GTK event loop (for instance 
-because they need to handle GTK-side objects), you can use the 
-dbus_get_object function.  This is *not* recommended for normal 
-usage, as any call to Pygame operations within the GTK event loop 
+If you want to run your callbacks in the GTK event loop (for instance
+because they need to handle GTK-side objects), you can use the
+dbus_get_object function.  This is *not* recommended for normal
+usage, as any call to Pygame operations within the GTK event loop
 can cause a segfault/core of your entire Activity.
 
 Note:
 
-    mesh sets up N**2 connections for each shared activity, obviously 
-    that will not scale to very large shared activities. 
+    mesh sets up N**2 connections for each shared activity, obviously
+    that will not scale to very large shared activities.
 
-Note: 
+Note:
 
-    The intention is that mesh will be refactored, possibly as a 
-    new module called "olpcgames.network", which would break out 
-    the various components so that there is no longer an assumed 
-    networking layout.  We will attempt to retain the mesh module's 
+    The intention is that mesh will be refactored, possibly as a
+    new module called "olpcgames.network", which would break out
+    the various components so that there is no longer an assumed
+    networking layout.  We will attempt to retain the mesh module's
     API as we do so.
 
 Events produced:
 
-    olpcgames.CONNECT -- The tube connection was started. (i.e., the 
-        user clicked Share or started the activity from the Neighborhood 
+    olpcgames.CONNECT -- The tube connection was started. (i.e., the
+        user clicked Share or started the activity from the Neighborhood
         screen).
-        
+
         Event properties:
-        
-            id -- a unique identifier for this connection. (shouldn't be needed 
+
+            id -- a unique identifier for this connection. (shouldn't be needed
                 for anything)
 
-    olpcgames.PARTICIPANT_ADD -- A participant joined the activity. 
-        This will trigger for the local user as well as any arriving remote 
-        users.  Note that this *only* occurs after the activity is shared, 
-        that is, the local user does not appear until after they have 
+    olpcgames.PARTICIPANT_ADD -- A participant joined the activity.
+        This will trigger for the local user as well as any arriving remote
+        users.  Note that this *only* occurs after the activity is shared,
+        that is, the local user does not appear until after they have
         shared a locally-started activity.
 
         Event properties:
 
-            handle --  the arriving user's handle (a uniquely identifying string 
-                assigned to the user by the Telepathy system, not human 
-                readable), see lookup_buddy to retrieve human-readable 
+            handle --  the arriving user's handle (a uniquely identifying string
+                assigned to the user by the Telepathy system, not human
+                readable), see lookup_buddy to retrieve human-readable
                 descriptions of the user.
 
     olpcgames.PARTICIPANT_REMOVE --  A participant quit the activity.
-    
+
         Event properties:
 
             handle -- the departing user's handle.
 
     olpcgames.MESSAGE_UNI -- A message was sent to you.
-    
+
         Event properties:
-        
+
            content --  the content of the message (a string)
            handle -- the handle of the sending user.
 
     olpcgames.MESSAGE_MULTI -- A message was sent to everyone.
 
         Event properties:
-        
+
            content -- the content of the message (a string)
            handle -- the handle of the sending user.
 
 Note:
 
-    Eventually we will stop using top-level Pygame event types for the 
-    various networking message types (currently four of them).  We will 
-    likely use UserEvent with a sub-type specifier for the various events 
+    Eventually we will stop using top-level Pygame event types for the
+    various networking message types (currently four of them).  We will
+    likely use UserEvent with a sub-type specifier for the various events
     that OLPCGames produces.
 
 See Also:
 
-    http://blog.vrplumber.com/2016 -- Discussion of how Productive uses 
+    http://blog.vrplumber.com/2016 -- Discussion of how Productive uses
         the mesh module and raw Telepathy (ExportedGObject instances)
 '''
 import logging
@@ -345,10 +345,10 @@ def _list_tubes_error_cb(e):
 
 def lookup_buddy( dbus_handle, callback, errback=None ):
     """Do a lookup on the buddy information, callback with the information
-    
-    Calls callback( buddy ) with the result of the lookup, or errback( error ) with 
+
+    Calls callback( buddy ) with the result of the lookup, or errback( error ) with
     a dbus description of the error in the lookup process.
-    
+
     returns None
     """
     log.debug('Trying to find owner of handle %s...', dbus_handle)
@@ -381,23 +381,23 @@ def lookup_buddy( dbus_handle, callback, errback=None ):
             _withHandle( handle )
     group.GetSelfHandle( reply_handler = with_my_csh, error_handler = errback)
 
-    
+
 
 def get_buddy(dbus_handle):
     """DEPRECATED: Get a Buddy from a handle
-    
+
     THIS API WAS NOT THREAD SAFE!  It has been removed to avoid
-    extremely hard-to-debug failures in activities.  Use lookup_buddy 
+    extremely hard-to-debug failures in activities.  Use lookup_buddy
     instead!
-    
+
     Code that read:
-    
+
         get_buddy( handle )
         doSomething( handle, buddy )
         doSomethingElse( buddy )
-        
+
     Translates to:
-        
+
         def withBuddy( buddy ):
             doSomething( handle, buddy )
             doSomethingElse( buddy )
@@ -520,9 +520,9 @@ def broadcast(content=""):
 
 def my_handle():
     '''Returns the handle of this user
-    
-    Note, you can get a DBusException from this if you have 
-    not yet got a unique ID assigned by the bus.  You may need 
+
+    Note, you can get a DBusException from this if you have
+    not yet got a unique ID assigned by the bus.  You may need
     to delay calling until you are sure you are connected.
     '''
     log.debug( 'my handle' )
@@ -545,9 +545,9 @@ def get_participants():
 def dbus_get_object(handle, path, warning=True):
     '''Get a D-bus object from another participant
 
-    Note: this *must* be called *only* from the GTK mainloop, calling 
-    it from Pygame will cause crashes!  If you are *sure* you only ever 
-    want to call methods on this proxy from GTK, you can use 
+    Note: this *must* be called *only* from the GTK mainloop, calling
+    it from Pygame will cause crashes!  If you are *sure* you only ever
+    want to call methods on this proxy from GTK, you can use
     warning=False to silence the warning log message.
     '''
     if warning:
@@ -560,24 +560,24 @@ def get_object(handle, path):
     This is how you can communicate with other participants using
     arbitrary D-bus objects without having to manage the participants
     yourself.  You can use the returned proxy's methods from Pygame,
-    with your callbacks occuring in the Pygame thread, rather than 
+    with your callbacks occuring in the Pygame thread, rather than
     in the DBUS/GTK event loop.
 
     Simply define a D-bus class with an interface and path that you
     choose; when you want a reference to the corresponding remote
     object on a participant, call this method.
-    
-    returns an olpcgames.dbusproxy.DBUSProxy( ) object wrapping 
+
+    returns an olpcgames.dbusproxy.DBUSProxy( ) object wrapping
     the DBUSProxy object.
-    
+
     The dbus_get_object_proxy name is deprecated
     '''
     log.debug( 'DBUS get_object( %r %r )', handle, path )
     from olpcgames import dbusproxy
-    return dbusproxy.DBUSProxy( 
-        instance().tube.get_object( handle, path), 
-        tube=instance().tube, 
-        path=path 
+    return dbusproxy.DBUSProxy(
+        instance().tube.get_object( handle, path),
+        tube=instance().tube,
+        path=path
     )
 
 dbus_get_object_proxy = get_object

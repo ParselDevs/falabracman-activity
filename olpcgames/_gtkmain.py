@@ -1,7 +1,7 @@
 """Support for GObject mainloop-requiring libraries when not inside GTK
 
 INITIALIZED -- whether we have a running gobject loop yet...
-LOOP_TRACKER -- if present, the manual gtk event loop used to 
+LOOP_TRACKER -- if present, the manual gtk event loop used to
     support gobject-based code running in a non-Gobject event loop
 
 Holder -- objects which can be held as attributes to keep the mainloop running

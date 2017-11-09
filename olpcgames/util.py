@@ -44,17 +44,17 @@ def tmp_path(file_name):
 
 def get_traceback(error):
     """Get formatted traceback from current exception
-    
+
     error -- Exception instance raised
-    
+
     Attempts to produce a 10-level traceback as a string
     that you can log off.  Use like so:
-    
+
     try:
         doSomething()
     except Exception, err:
-        log.error( 
-            '''Failure during doSomething with X,Y,Z parameters: %s''', 
+        log.error(
+            '''Failure during doSomething with X,Y,Z parameters: %s''',
             util.get_traceback( err ),
         )
     """

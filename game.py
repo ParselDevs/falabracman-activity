@@ -117,13 +117,13 @@ def armarLetras(color1, color2):
     for l in "ABCDEFGHIJKLMNOPQRSTUVWXYZÑÃÇÕ*":
         d[l] = hollow.textOutline(font, l, color1, color2)
     return d
-    
+
 letrasEncendidas = armarLetras(BASECOLOR, OUTLINECOLOR)
 letrasApagadas = armarLetras(OUTLINECOLOR, BASECOLOR)
 
 def dameLetra(dictLetras, letra):
     return dictLetras.get(letra, dictLetras["*"])
-    
+
 class LetterSprite(Collisionable):
     sound =  pygame.mixer.Sound("sounds/money.ogg")
     def __init__(self, grossini, letra):
@@ -168,11 +168,11 @@ class Display:
         for n in range(self.vidas):
             self.area.blit(imagenVida, (w,0))
             w -= imagenVida.get_rect().width
-    
+
     def encender(self):
         self.encendidas += 1
         self.dibujar()
-        
+
 barra = pygame.image.load("images/barra.jpg").convert_alpha()
 
 class Palabra(pygame.sprite.Group):
@@ -212,8 +212,8 @@ class Nivel:
         playing_area.blit(self.fondo, (0,0))
 
     def dibujar(self, area):
-        self.grupoLetras.clear(area, self.fondo)  
-        self.grupoLetras.draw(area)  
+        self.grupoLetras.clear(area, self.fondo)
+        self.grupoLetras.draw(area)
 
     def hayMasPalabras(self):
         return len(self.palabras) > 0
@@ -238,7 +238,7 @@ class Nivel:
                         if self.hayMasPalabras():
                             self.nuevaPalabra(grossini)
                         else:
-                            self.finNivel = True 
+                            self.finNivel = True
 
 class Estado:
     def __init__(self, dic):
@@ -302,7 +302,7 @@ def main(language="bra"):
     #Comienza el juego
     playing = True
     clock = pygame.time.Clock()
-    
+
     musica.play(-1)
 
     while playing:

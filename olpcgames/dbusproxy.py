@@ -1,7 +1,7 @@
 """Spike test for a safer networking system for DBUS-based objects"""
 from olpcgames import eventwrap, util
 from dbus import proxies
-import logging 
+import logging
 log = logging.getLogger( 'dbus' )
 log.setLevel( logging.DEBUG )
 
@@ -11,11 +11,11 @@ def wrap( value, tube=None,path=None ):
         return DBUSMethod( value, tube=tube, path=path )
     elif isinstance( value, proxies._DeferredMethod ):
         value._proxy_method = DBUSMethod( value._proxy_method, tube=tube, path=path )
-        return value 
+        return value
     elif isinstance( value, proxies.ProxyObject ):
         return DBUSProxy( value, tube=tube, path=path )
     else:
-        return value 
+        return value
 
 class DBUSProxy( object ):
     """Proxy for the DBUS Proxy object"""
@@ -29,7 +29,7 @@ class DBUSProxy( object ):
         from dbus import proxies
         return wrap( getattr( self.__proxy, key ) )
     def add_signal_receiver( self, callback, eventName, interface, path=None, sender_keyword='sender'):
-        """Add a new signal handler (which will be called many times) for given signal 
+        """Add a new signal handler (which will be called many times) for given signal
         """
         log.info( """Setting signal receiver %s for event %s on interface %s (object path %s) with sender_keyword = %r""",
             callback, eventName, interface, path, sender_keyword,
@@ -39,7 +39,7 @@ class DBUSProxy( object ):
             Callback( callback ),
             eventName,
             interface,
-            path = path or self.__path, 
+            path = path or self.__path,
             sender_keyword = sender_keyword,
         )
 
@@ -48,7 +48,7 @@ class DBUSMethod( object ):
     def __init__( self, proxy, tube,path ):
         log.info( 'Creating Pygame-side method proxy for %s', proxy )
         self.__proxy = proxy
-        self.__tube = tube 
+        self.__tube = tube
         self.__path = path
     def __call__( self, *args, **named ):
         """Perform the asynchronous call"""
@@ -86,8 +86,8 @@ class Callback( object ):
         named = dict([
             (k,wrap(v)) for k,v in named.items()
         ])
-        eventwrap.post( 
-            eventwrap.CallbackResult( 
-                self.callable, args, named, callContext = self.callContext 
+        eventwrap.post(
+            eventwrap.CallbackResult(
+                self.callable, args, named, callContext = self.callContext
             )
         )

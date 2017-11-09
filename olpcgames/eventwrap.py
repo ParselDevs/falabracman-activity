@@ -1,20 +1,20 @@
 """Provides substitute for Pygame's "event" module using gtkEvent
 
-Provides methods which will be substituted into Pygame in order to 
+Provides methods which will be substituted into Pygame in order to
 provide the synthetic events that we will feed into the Pygame queue.
 These methods are registered by the "install" method.
 
-This event queue does not support getting events only of a certain type. 
-You need to get all pending events at a time, or filter them yourself. You 
-can, however, block and unblock events of certain types, so that may be 
-useful to you. 
+This event queue does not support getting events only of a certain type.
+You need to get all pending events at a time, or filter them yourself. You
+can, however, block and unblock events of certain types, so that may be
+useful to you.
 
 Set_grab doesn't do anything (you are not allowed to grab events). Sorry.
 
 Extensions:
 
-    wait( timeout=None ) -- allows you to wait for only a specified period 
-        before you return to the application.  Can be used to e.g. wait for a 
+    wait( timeout=None ) -- allows you to wait for only a specified period
+        before you return to the application.  Can be used to e.g. wait for a
         short period, then release some resources, then wait a bit more, then
         release a few more resources, then a bit more...
 """
@@ -52,10 +52,10 @@ class Event(object):
         )
     def block( self ):
         """Block until this event is finished processing
-        
+
         Event process is only finalized on the *next* call to retrieve an event
-        after the processing operation in which the event is processed.  In some 
-        extremely rare cases we might actually see that happen, were the 
+        after the processing operation in which the event is processed.  In some
+        extremely rare cases we might actually see that happen, were the
         file-saving event (for example) causes the Pygame event loop to exit.
         In that case, the GTK event loop *could* hang.
         """
@@ -68,18 +68,18 @@ class Event(object):
             self.__lock.set()
             log.info( '''Released GTK thread on event: %s''', self )
         except AttributeError, err:
-            pass 
+            pass
 
 class CallbackResult( object ):
     def __init__( self, callable, args, named, callContext=None ):
         """Perform callback in Pygame loop with args and named
-        
-        callContext is used to provide more information when there is 
+
+        callContext is used to provide more information when there is
         a failure in the callback (for debugging purposes)
         """
         self.callable = callable
-        self.args = args 
-        self.named = named 
+        self.args = args
+        self.named = named
         if callContext is None:
             callContext = util.get_traceback( None )
         self.callContext = callContext
@@ -90,7 +90,7 @@ class CallbackResult( object ):
         except Exception, err:
             log.error(
                 """Failure in callback %s( *%s, **%s ): %s\n%s""",
-                getattr(self.callable, '__name__',self.callable), 
+                getattr(self.callable, '__name__',self.callable),
                 self.args, self.named,
                 util.get_traceback( err ),
                 self.callContext
@@ -117,7 +117,7 @@ def _processCallbacks( events ):
         else:
             result.append( event )
     if events and not result:
-        result.append( 
+        result.append(
             Event( type=pygame.NOEVENT )
         )
     return result
@@ -126,18 +126,18 @@ def _recordEvents( events ):
     """Record the set of events to retire on the next iteration"""
     global _EVENTS_TO_RETIRE
     events = _processCallbacks( events )
-    _EVENTS_TO_RETIRE = events 
+    _EVENTS_TO_RETIRE = events
     return events
 
 def install():
     """Installs this module (eventwrap) as an in-place replacement for the pygame.event module.
-   
+
     Use install() when you need to interact with Pygame code written
-    without reference to the olpcgames wrapper mechanisms to have the 
+    without reference to the olpcgames wrapper mechanisms to have the
     code use this module's event queue.
-    
+
     XXX Really, use it everywhere you want to use olpcgames, as olpcgames
-    registers the handler itself, so you will always wind up with it registered when 
+    registers the handler itself, so you will always wind up with it registered when
     you use olpcgames (the gtkEvent.Translator.hook_pygame method calls it).
     """
     log.info( 'Installing OLPCGames event wrapper' )
@@ -152,8 +152,8 @@ class _FilterQueue( Queue.Queue ):
     """Simple Queue sub-class with a put_left method"""
     def get_type( self, filterFunction, block=True, timeout=None ):
         """Get events of a given type
-        
-        Note: can raise Empty *even* when blocking if someone else 
+
+        Note: can raise Empty *even* when blocking if someone else
         pops the event off the queue before we get around to it.
         """
         self.not_empty.acquire()
@@ -182,19 +182,19 @@ class _FilterQueue( Queue.Queue ):
         """Are we empty with respect to filterFunction?"""
         for element in self.queue:
             if filterFunction( element ):
-                return False 
+                return False
         return True
     def _get_type( self, filterFunction ):
         """Get the first instance which matches filterFunction"""
         for element in self.queue:
             if filterFunction( element ):
                 self.queue.remove( element )
-                return element 
+                return element
         # someone popped the event off the queue before we got to it!
         raise Queue.Empty
     def peek_type( self, filterFunction= lambda x: True ):
         """Peek to see if we have filterFunction-matching element
-        
+
         Note: obviously this is *not* thread safe, it's just informative...
         """
         try:
@@ -204,7 +204,7 @@ class _FilterQueue( Queue.Queue ):
             return None
         except RuntimeError, err:
             return None # none yet, at least
-    
+
 g_events = _FilterQueue()
 
 # Set of blocked events as set by set
@@ -227,7 +227,7 @@ def _typeChecker( types ):
 
 def pump():
     """Handle any window manager and other external events that aren't passed to the user
-    
+
     Call this periodically (once a frame) if you don't call get(), poll() or wait()
     """
     pygame_pump()
@@ -235,15 +235,15 @@ def pump():
 
 def get( types=None):
     """Get a list of all pending events
-    
-    types -- either an integer event-type or a sequence of integer event types 
-        which restrict the set of event-types returned from the queue.  Keep in mind 
+
+    types -- either an integer event-type or a sequence of integer event types
+        which restrict the set of event-types returned from the queue.  Keep in mind
         that if you do not remove events you may wind up with an eternally growing
-        queue or a full queue.  Normally you will want to remove all events in your 
+        queue or a full queue.  Normally you will want to remove all events in your
         top-level event-loop and propagate them yourself.
-    
+
         Note: if you use types you lose all event ordering guarantees, events
-        may show up after events which were originally produced before them due to 
+        may show up after events which were originally produced before them due to
         the re-ordering of the queue on filtering!
     """
     pump()
@@ -258,7 +258,7 @@ def get( types=None):
                 eventlist.append(g_events.get(block=False))
     except Queue.Empty:
         pass
-    
+
     pygameEvents = pygame_get()
     if pygameEvents:
         log.info( 'Raw Pygame events: %s', pygameEvents)
@@ -277,14 +277,14 @@ def poll():
 
 def wait( timeout = None):
     """Get the next pending event, wait up to timeout if none
-    
-    timeout -- if present, only wait up to timeout seconds, if we 
-        do not find an event before then, return None.  timeout 
+
+    timeout -- if present, only wait up to timeout seconds, if we
+        do not find an event before then, return None.  timeout
         is an OLPCGames-specific extension.
     """
     pump()
     try:
-        result = None 
+        result = None
         result = g_events.get(block=True, timeout=timeout)
         try:
             return _recordEvents( [result] )[0]
@@ -295,19 +295,19 @@ def wait( timeout = None):
 
 def peek(types=None):
     """True if there is any pending event
-    
-    types -- optional set of event-types used to check whether 
-        an event is of interest.  If specified must be either a sequence 
+
+    types -- optional set of event-types used to check whether
+        an event is of interest.  If specified must be either a sequence
         of integers/longs or an integer/long.
     """
     if types:
         check = _typeChecker( types )
         return g_events.peek_type( check ) is not None
     return not g_events.empty()
-    
+
 def clear():
-    """Clears the entire pending queue of events 
-    
+    """Clears the entire pending queue of events
+
     Rarely used
     """
     try:
@@ -329,7 +329,7 @@ def set_blocked(item):
         [g_blocked.add(x) for x in makeseq(item)]
     finally:
         g_blockedlock.release()
-    
+
 def set_allowed(item):
     """Allow item/items to be added to the event queue"""
     g_blockedlock.acquire()

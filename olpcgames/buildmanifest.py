@@ -2,7 +2,7 @@
 """Stupid little script to automate generation of MANIFEST and po/POTFILES.in
 
 Really this should have been handled by using distutils, but oh well,
-distutils is a hoary beast and I can't fault people for not wanting to 
+distutils is a hoary beast and I can't fault people for not wanting to
 spend days spelunking around inside it to find the solutions...
 """
 from distutils.filelist import FileList
@@ -21,7 +21,7 @@ def main( ):
     """Do the quicky finding of files for our manifests"""
     content = fileList( open('MANIFEST.in').read() )
     open( 'MANIFEST','w').write( content )
-    
+
     content = fileList( open('POTFILES.in').read() )
     try:
         os.makedirs( 'po' )

@@ -17,7 +17,7 @@
 #along with Falabracman.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from config import * 
+from config import *
 import pygame
 from pygame.locals import *
 import gettext
